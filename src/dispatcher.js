@@ -69,7 +69,9 @@ class CommandDispatcher {
 	 * });
 	 * @example
 	 * client.dispatcher.addInhibitor(msg => {
-	 * 	if(!coolUsers.has(msg.author.id)) return ['cool', msg.reply('You\'re not cool enough!')];
+	 * 	if(!coolUsers.has(msg.author.id)) return ['cool', msg.
+	 
+('You\'re not cool enough!')];
 	 * });
 	 */
 	addInhibitor(inhibitor) {
@@ -122,7 +124,7 @@ class CommandDispatcher {
 			if(!inhibited) {
 				if(cmdMsg.command) {
 					if(!cmdMsg.command.isEnabledIn(message.guild)) {
-						responses = await cmdMsg.reply(`The \`${cmdMsg.command.name}\` command is disabled.`);
+						responses = await cmdMsg.say(`The \`${cmdMsg.command.name}\` command is disabled.`);
 					} else if(!oldMessage || typeof oldCmdMsg !== 'undefined') {
 						responses = await cmdMsg.run();
 						if(typeof responses === 'undefined') responses = null; // eslint-disable-line max-depth
@@ -136,7 +138,7 @@ class CommandDispatcher {
 					 */
 					this.client.emit('unknownCommand', cmdMsg);
 					if(this.client.options.unknownCommandResponse) {
-						responses = await cmdMsg.reply(
+						responses = await cmdMsg.say(
 							`Unknown command. Use ${cmdMsg.anyUsage(
 								'help',
 								message.guild ? undefined : null,
