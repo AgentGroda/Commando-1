@@ -143,20 +143,20 @@ module.exports = Structures.extend('Message', Message => {
 				 * (built-in reasons are `guildOnly`, `nsfw`, `permission`, and `throttling`)
 				 */
 				this.client.emit('commandBlocked', this, 'guildOnly');
-				return this.reply(`The \`${this.command.name}\` command must be used in a server channel.`);
+				return this.say(`The \`${this.command.name}\` command must be used in a server channel.`);
 			}
 
 			if(this.command.nsfw && !this.channel.nsfw) {
 				this.client.emit('commandBlocked', this, 'nsfw');
-				return this.reply(`The \`${this.command.name}\` command can only be used in NSFW channels.`);
+				return this.say(`The \`${this.command.name}\` command can only be used in NSFW channels.`);
 			}
 
 			// Ensure the user has permission to use the command
 			const hasPermission = this.command.hasPermission(this);
 			if(!hasPermission || typeof hasPermission === 'string') {
 				this.client.emit('commandBlocked', this, 'permission');
-				if(typeof hasPermission === 'string') return this.reply(hasPermission);
-				else return this.reply(`You do not have permission to use the \`${this.command.name}\` command.`);
+				if(typeof hasPermission === 'string') return this.say(hasPermission);
+				else return this.say(`You do not have permission to use the \`${this.command.name}\` command.`);
 			}
 
 			// Ensure the client user has the required permissions
@@ -165,11 +165,11 @@ module.exports = Structures.extend('Message', Message => {
 				if(missing.length > 0) {
 					this.client.emit('commandBlocked', this, 'clientPermissions');
 					if(missing.length === 1) {
-						return this.reply(
+						return this.say(
 							`I need the "${permissions[missing[0]]}" permission for the \`${this.command.name}\` command to work.`
 						);
 					}
-					return this.reply(oneLine`
+					return this.say(oneLine`
 						I need the following permissions for the \`${this.command.name}\` command to work:
 						${missing.map(perm => permissions[perm]).join(', ')}
 					`);
@@ -181,7 +181,7 @@ module.exports = Structures.extend('Message', Message => {
 			if(throttle && throttle.usages + 1 > this.command.throttling.usages) {
 				const remaining = (throttle.start + (this.command.throttling.duration * 1000) - Date.now()) / 1000;
 				this.client.emit('commandBlocked', this, 'throttling');
-				return this.reply(
+				return this.say(
 					`You may not use the \`${this.command.name}\` command again for another ${remaining.toFixed(1)} seconds.`
 				);
 			}
@@ -197,9 +197,9 @@ module.exports = Structures.extend('Message', Message => {
 				if(result.cancelled) {
 					if(result.prompts.length === 0) {
 						const err = new CommandFormatError(this);
-						return this.reply(err.message);
+						return this.say(err.message);
 					}
-					return this.reply('Cancelled command.');
+					return this.say('Cancelled command.');
 				}
 				args = result.values;
 			}
@@ -244,7 +244,7 @@ module.exports = Structures.extend('Message', Message => {
 				this.client.emit('commandError', this.command, err, this, args, fromPattern);
 				if(this.channel.typingCount > typingCount) this.channel.stopTyping();
 				if(err instanceof FriendlyError) {
-					return this.reply(err.message);
+					return this.say(err.message);
 				} else {
 					const owners = this.client.owners;
 					let ownerList = owners ? owners.map((usr, i) => {
@@ -253,7 +253,7 @@ module.exports = Structures.extend('Message', Message => {
 					}).join(owners.length > 2 ? ', ' : ' ') : '';
 
 					const invite = this.client.options.invite;
-					return this.reply(stripIndents`
+					return this.say(stripIndents`
 						An error occurred while running the command: \`${err.name}: ${err.message}\`
 						You shouldn't ever receive an error like this.
 						Please contact ${ownerList || 'the bot owner'}${invite ? ` in this server: ${invite}` : '.'}
